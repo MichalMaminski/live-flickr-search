@@ -1,6 +1,6 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const path = require('path');
 
 module.exports = {
@@ -10,8 +10,11 @@ module.exports = {
         path: path.resolve(__dirname, 'dist')
     },
     devServer: {
-        contentBase: path.resolve(__dirname, 'dist/'),
-        port: 8888
+        static: {
+            directory: path.join(__dirname, 'dist'),
+          },
+        port: 8888,
+        open: true,
     },
     module: {
         rules: [
@@ -21,7 +24,7 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['env', 'react', 'stage-2']
+                        presets: ['@babel/preset-react']
                     }
                 }
             },
@@ -36,14 +39,19 @@ module.exports = {
         ]
     },
     plugins: [
-        new CleanWebpackPlugin(['dist']),
+        new CleanWebpackPlugin({
+            cleanOnceBeforeBuildPatterns: ['dist/**/*'], // Specify the patterns to clean
+        }),
         new HtmlWebpackPlugin({
             title: "Live flickr search build on top of reactjs",
             template: path.resolve(__dirname, 'src/index-temp.html'),
             hash: true
         }),
-        new CopyWebpackPlugin([{
-            from: "./src/static/favicon.png"
-        }])
+        new CopyWebpackPlugin({
+            patterns: [{
+                from: "./src/static/favicon.png",
+                to: 'dist'
+            }]
+        })
     ]
 };
